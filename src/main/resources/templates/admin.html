@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>系统管理页面</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <style>
+        th, td {white-space: nowrap}
+    </style>
+</head>
+<body>
+<nav class="navbar bg-dark navbar-expand-md navbar-dark">
+    <a class="navbar-brand" href="#">学院二次分配管理系统</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin">用户管理</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/personal">个人信息</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/sign_out">退出登陆</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="row" style="margin-top: 15px">
+        <h2 class="col-6">用户列表</h2>
+        <div class="col-6">
+            <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#myModal">添加用户
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Email</th>
+                <th>姓名</th>
+                <th>身份</th>
+                <th>职称</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${users}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.email}"></td>
+                <td th:text="${item.username}"></td>
+                <td th:text="${item.role}"></td>
+                <td th:text="${item.rank}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/add_user" method="post" onsubmit="return check()">
+                <div class="modal-header">
+                    <h4 class="modal-title">添加新用户</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" name="email" id="email" class="form-control" placeholder="请输入邮箱地址" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">用户名：</label>
+                        <input type="text" name="username" id="username" class="form-control" placeholder="请输入用户真实姓名"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码：</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="请输入密码"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password_">密码：</label>
+                        <input type="password" id="password_" class="form-control" placeholder="请再次输入密码" required>
+                    </div>
+                    <label>职称：
+                        <select class="form-control" name="rank" required>
+                            <option value="professor">教授</option>
+                            <option value="associate_professor">副教授</option>
+                            <option value="assistant">助教</option>
+                            <option value="lecturer ">讲师</option>
+                        </select></label>
+                    <label>身份：
+                        <select class="form-control" name="role" required>
+                            <option value="ROLE_WORKER">职员</option>
+                            <option value="ROLE_DIRECTOR">主任</option>
+                            <option value="ROLE_LEADER">领导</option>
+                        </select></label>
+                    <label id="info" style="color: red;margin-left: 18px"></label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.js"></script>
+<script>
+    var password_1 = $("#password");
+    var password_2 = $("#password_");
+    var info = $("#info");
+    $(document).ready(function () {
+
+        password_1.keyup(function () {
+            if (password_1.val() !== password_2.val()) {
+                info.text("两次密码不一致");
+            } else {
+                info.text("");
+            }
+        });
+        password_2.keyup(function () {
+            if (password_1.val() !== password_2.val()) {
+                info.text("两次密码不一致");
+            } else {
+                info.text("");
+            }
+        });
+    });
+    function check() {
+        if (password_1.val() !== password_2.val()) {
+            return false;
+        }
+    }
+</script>
+</html>

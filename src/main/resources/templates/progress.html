@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>申请进度查询页面</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <style>
+        th, td {
+            white-space: nowrap;
+            text-align: center
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar bg-dark navbar-expand-md navbar-dark">
+    <a class="navbar-brand" href="#">学院二次分配管理系统</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/publicity">公示</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/apply">申请</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/progress">申请进度查询</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/personal">个人信息</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/sign_out">退出登陆</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <h2 style="margin-top: 15px">已申请的项目</h2>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead>
+            <tr>
+                <th>申请编号</th>
+                <th>项目名</th>
+                <th>类型</th>
+                <th>申请日期</th>
+                <th>状态</th>
+                <th>处理</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${applications}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.type}"></td>
+                <td th:text="${#dates.format(item.createTime,'yyyy-MM-dd')}"></td>
+                <td th:text="${item.status}"></td>
+                <td>
+                    <button th:if="${item.status=='WAITING'||item.status=='REFUSED'}"
+                            th:onclick="'javascript:handle(\''+${item.id}+'\')'" class='btn btn-sm btn-primary'>修改
+                    </button>&nbsp;<button th:if="${item.status!='CONFIRMED'}"
+                                           th:onclick="'javascript:remove(\''+${item.id}+'\')'"
+                                           class='btn btn-sm btn-danger'>放弃
+                </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">修改申请材料</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="file" id="file">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-success" onclick="update()">保存修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.js"></script>
+<script>
+    var theId;
+
+    function handle(id) {
+        console.log(id);
+        theId = id;
+        $('#myModal').modal('show');
+    }
+
+    function remove(id) {
+        console.log(id);
+        $.ajax({
+            type: 'post',
+            url: "/doApplicationRemove",
+            data: {
+                "id": id
+            },
+            beforeSend: function () {
+                return confirm("确认删除");
+            },
+            success: function (data) {
+                if (data === "success") {
+                    location.reload();
+                } else {
+                    alert("处理失败");
+                }
+            }
+        });
+    }
+
+    function update() {
+        var formData = new FormData();
+        var file = $("#file");
+        formData.append("id", theId);
+        formData.append("file", file[0].files[0]);
+        $.ajax({
+            type: 'post',
+            url: "/doApplicationUpdate",
+            cache: false,
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                if (file[0].files.length < 1) {
+                    return false;
+                }
+            },
+            success: function (data) {
+                if (data === "success") {
+                    alert("修改成功")
+                    location.reload();
+                } else {
+                    alert("修改失败");
+                }
+            }
+        });
+    }
+</script>
+</html>
